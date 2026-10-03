@@ -56,7 +56,7 @@
             border-radius: 10px;
         }
         
-        /* Official Professional Printable Sheet Styling - معالجة ورقة الطباعة */
+        /* Official Professional Printable Sheet Styling */
         @media print {
             html, body {
                 background: white !important; 
@@ -68,7 +68,7 @@
                 display: block !important;
             }
 
-            /* إخفاء واجهة التطبيق الخارجية وأزرار التحكم */
+            /* إخفاء عناصر التطبيق والقوائم غير المرغوبة أثناء الطباعة */
             #main-app-container, 
             #app-header, 
             #app-content, 
@@ -82,7 +82,7 @@
                 display: none !important; 
             }
 
-            /* إظهار نافذة التقرير فقط كصفحة طباعة كاملة بدون قيود */
+            /* إظهار نافذة التقرير فقط كصفحة طباعة كاملة */
             #action-modal {
                 position: static !important;
                 background: transparent !important;
@@ -119,11 +119,15 @@
                 display: block !important;
             }
 
+            .print-body-title-block {
+                display: block !important;
+            }
+
             table {
                 width: 100% !important;
                 border-collapse: collapse !important;
                 font-size: 11pt !important;
-                margin-top: 15px !important;
+                margin-top: 8px !important;
             }
 
             th, td {
@@ -145,6 +149,10 @@
         }
 
         .print-only-header {
+            display: none;
+        }
+
+        .print-body-title-block {
             display: none;
         }
     </style>
@@ -516,7 +524,7 @@
         let currentModalType = "";
         let currentAttendanceMap = {};
 
-        // --- Tabs Specification Data (7 Main Tabs) ---
+        // --- Tabs Specification Data ---
         const tabsData = [
             {
                 index: 0,
@@ -532,10 +540,9 @@
                 icon: "fa-graduation-cap",
                 cards: [
                     { title: "إدارة المراحل والشعب", desc: "إضافة المراحل والشعب الأكاديمية وإحصائيات القيد", icon: "fa-layer-group", colorBg: "bg-indigo-50 text-indigo-600 border-indigo-100", action: "add_class" },
-                    { title: "تسجيل طالب جديد", desc: "إضافة طالب بالاسم الرباعي، الرقم الجامعي، والمرحلة", icon: "fa-user-plus", colorBg: "bg-emerald-50 text-emerald-600 border-emerald-100", action: "add_student" },
+                    { title: "تسجيل طالب جديد", desc: "إضافة طالب بالاسم الرباعي، والمرحلة (رقم الهاتف اختياري)", icon: "fa-user-plus", colorBg: "bg-emerald-50 text-emerald-600 border-emerald-100", action: "add_student" },
                     { title: "الطلبة المسجلين في النظام", desc: "تعديل بيانات الطلبة المسجلين (الاسم، المرحلة، الشعبة، ورقم الواتساب)", icon: "fa-users-gear", colorBg: "bg-teal-50 text-teal-600 border-teal-100", action: "manage_registered_students" },
                     { title: "استيراد القوائم بالجملة", desc: "إدخال قائمة أسماء الوجبات بأسلوب النسخ واللصق", icon: "fa-file-import", colorBg: "bg-sky-50 text-sky-600 border-sky-100", action: "import_students" },
-                    { title: "سجل وإضبارة الطلبة", desc: "استعراض قيود الطلبة وتفاصيل الاتصال والطباعة", icon: "fa-address-book", colorBg: "bg-amber-50 text-amber-700 border-amber-100", action: "view_dossier" },
                     { title: "إضافة مادة دراسية", desc: "ربط المادة بالمرحلة والأستاذ والمنهج الجامعي", icon: "fa-book-bookmark", colorBg: "bg-rose-50 text-rose-600 border-rose-100", action: "add_subject" }
                 ]
             },
@@ -644,7 +651,7 @@
             }
         }
 
-        // 1. Render Cards List Tab (Tab 1)
+        // 1. Render Cards List Tab
         function renderCardsTab(container, cards) {
             let html = `<div class="grid grid-cols-1 gap-3.5">`;
             cards.forEach(card => {
@@ -1248,6 +1255,7 @@
 
             let html = '';
 
+            // SubTab 0: الفصل الأول (المجموع رقم لوحده)
             if (activeGradesSubTab === 0) {
                 let rows = filtered.map((s, idx) => {
                     let t1Exam = s.t1Exam || 0;
@@ -1263,7 +1271,7 @@
                             <td class="p-2 text-center">
                                 <input type="number" min="0" max="5" id="inp-t1eval-${s.id}" value="${t1Eval}" onchange="recalcTerm1Sum(${s.id})" class="w-12 bg-slate-50 border p-1 rounded-lg text-center font-bold text-slate-900 outline-none">
                             </td>
-                            <td class="p-2 text-center font-black text-indigo-700" id="sum-t1-${s.id}">${sum} / 25</td>
+                            <td class="p-2 text-center font-black text-indigo-700 text-sm" id="sum-t1-${s.id}">${sum}</td>
                         </tr>
                     `;
                 }).join('');
@@ -1279,7 +1287,7 @@
                         <div class="overflow-x-auto">
                             <table class="w-full text-right">
                                 <thead class="bg-slate-900 text-amber-400 text-[10px]">
-                                    <tr><th class="p-2 text-center">#</th><th class="p-2">اسم الطالب</th><th class="p-2 text-center">امتحان (20)</th><th class="p-2 text-center">تقييم (5)</th><th class="p-2 text-center">المجموع (25)</th></tr>
+                                    <tr><th class="p-2 text-center">#</th><th class="p-2">اسم الطالب</th><th class="p-2 text-center">امتحان (20)</th><th class="p-2 text-center">تقييم (5)</th><th class="p-2 text-center">المجموع</th></tr>
                                 </thead>
                                 <tbody>${rows}</tbody>
                             </table>
@@ -1290,7 +1298,9 @@
                         </button>
                     </div>
                 `;
-            } else if (activeGradesSubTab === 1) {
+            } 
+            // SubTab 1: الفصل الثاني (المجموع رقم لوحده)
+            else if (activeGradesSubTab === 1) {
                 let rows = filtered.map((s, idx) => {
                     let t2Exam = s.t2Exam || 0;
                     let t2Eval = s.t2Eval || 0;
@@ -1305,7 +1315,7 @@
                             <td class="p-2 text-center">
                                 <input type="number" min="0" max="5" id="inp-t2eval-${s.id}" value="${t2Eval}" onchange="recalcTerm2Sum(${s.id})" class="w-12 bg-slate-50 border p-1 rounded-lg text-center font-bold text-slate-900 outline-none">
                             </td>
-                            <td class="p-2 text-center font-black text-sky-700" id="sum-t2-${s.id}">${sum} / 25</td>
+                            <td class="p-2 text-center font-black text-sky-700 text-sm" id="sum-t2-${s.id}">${sum}</td>
                         </tr>
                     `;
                 }).join('');
@@ -1321,7 +1331,7 @@
                         <div class="overflow-x-auto">
                             <table class="w-full text-right">
                                 <thead class="bg-slate-900 text-amber-400 text-[10px]">
-                                    <tr><th class="p-2 text-center">#</th><th class="p-2">اسم الطالب</th><th class="p-2 text-center">امتحان (20)</th><th class="p-2 text-center">تقييم (5)</th><th class="p-2 text-center">المجموع (25)</th></tr>
+                                    <tr><th class="p-2 text-center">#</th><th class="p-2">اسم الطالب</th><th class="p-2 text-center">امتحان (20)</th><th class="p-2 text-center">تقييم (5)</th><th class="p-2 text-center">المجموع</th></tr>
                                 </thead>
                                 <tbody>${rows}</tbody>
                             </table>
@@ -1332,7 +1342,9 @@
                         </button>
                     </div>
                 `;
-            } else if (activeGradesSubTab === 2) {
+            } 
+            // SubTab 2: درجة السعي (المجموع رقم لوحده)
+            else if (activeGradesSubTab === 2) {
                 let rows = filtered.map((s, idx) => {
                     let t1 = (s.t1Exam||0) + (s.t1Eval||0);
                     let t2 = (s.t2Exam||0) + (s.t2Eval||0);
@@ -1341,9 +1353,9 @@
                         <tr class="border-b border-slate-100 text-[11px]">
                             <td class="p-2 font-bold text-center">${idx+1}</td>
                             <td class="p-2 font-bold text-slate-800">${s.name}</td>
-                            <td class="p-2 text-center font-semibold text-indigo-700">${t1} / 25</td>
-                            <td class="p-2 text-center font-semibold text-sky-700">${t2} / 25</td>
-                            <td class="p-2 text-center font-black text-amber-600 text-xs">${saai} / 50</td>
+                            <td class="p-2 text-center font-semibold text-indigo-700">${t1}</td>
+                            <td class="p-2 text-center font-semibold text-sky-700">${t2}</td>
+                            <td class="p-2 text-center font-black text-amber-600 text-sm">${saai}</td>
                         </tr>
                     `;
                 }).join('');
@@ -1359,14 +1371,16 @@
                         <div class="overflow-x-auto">
                             <table class="w-full text-right">
                                 <thead class="bg-slate-900 text-amber-400 text-[10px]">
-                                    <tr><th class="p-2 text-center">#</th><th class="p-2">اسم الطالب</th><th class="p-2 text-center">فصل 1 (25)</th><th class="p-2 text-center">فصل 2 (25)</th><th class="p-2 text-center">السعي (50)</th></tr>
+                                    <tr><th class="p-2 text-center">#</th><th class="p-2">اسم الطالب</th><th class="p-2 text-center">فصل 1 (25)</th><th class="p-2 text-center">فصل 2 (25)</th><th class="p-2 text-center">السعي الكلي</th></tr>
                                 </thead>
                                 <tbody>${rows}</tbody>
                             </table>
                         </div>
                     </div>
                 `;
-            } else if (activeGradesSubTab === 3) {
+            } 
+            // SubTab 3: الفاينل
+            else if (activeGradesSubTab === 3) {
                 let rows = filtered.map((s, idx) => {
                     let saai = (s.t1Exam||0) + (s.t1Eval||0) + (s.t2Exam||0) + (s.t2Eval||0);
                     let final = s.final || 0;
@@ -1374,7 +1388,7 @@
                         <tr class="border-b border-slate-100 text-[11px]">
                             <td class="p-2 font-bold text-center">${idx+1}</td>
                             <td class="p-2 font-bold text-slate-800">${s.name}</td>
-                            <td class="p-2 text-center font-bold text-amber-700">${saai} / 50</td>
+                            <td class="p-2 text-center font-bold text-amber-700">${saai}</td>
                             <td class="p-2 text-center">
                                 <input type="number" min="0" max="50" id="inp-final-${s.id}" value="${final}" class="w-16 bg-slate-50 border p-1 rounded-lg text-center font-bold text-purple-900 outline-none">
                             </td>
@@ -1404,7 +1418,9 @@
                         </button>
                     </div>
                 `;
-            } else if (activeGradesSubTab === 4) {
+            } 
+            // SubTab 4: النتيجة النهائية (المجموع رقم لوحده)
+            else if (activeGradesSubTab === 4) {
                 let rows = filtered.map((s, idx) => {
                     let saai = (s.t1Exam||0) + (s.t1Eval||0) + (s.t2Exam||0) + (s.t2Eval||0);
                     let final = s.final || 0;
@@ -1420,7 +1436,7 @@
                             <td class="p-2 font-black text-slate-900">${s.name}</td>
                             <td class="p-2 text-center text-slate-700">${saai}</td>
                             <td class="p-2 text-center text-slate-700">${final}</td>
-                            <td class="p-2 text-center text-sm font-black ${passed ? 'text-emerald-700' : 'text-rose-700'}">${total} / 100</td>
+                            <td class="p-2 text-center text-base font-black ${passed ? 'text-emerald-700' : 'text-rose-700'}">${total}</td>
                             <td class="p-2 text-center">
                                 <span class="px-2.5 py-1 rounded-full text-[10px] font-black ${badgeClass}">
                                     ${passed ? 'ناجح ✓' : 'راسب ✗'}
@@ -1445,7 +1461,7 @@
                         <div class="overflow-x-auto">
                             <table class="w-full text-right border-collapse">
                                 <thead class="bg-slate-900 text-amber-400 text-[10px]">
-                                    <tr><th class="p-2 text-center">#</th><th class="p-2">اسم الطالب</th><th class="p-2 text-center">السعي (50)</th><th class="p-2 text-center">الفاينل (50)</th><th class="p-2 text-center">المجموع (100)</th><th class="p-2 text-center">النتيجة</th></tr>
+                                    <tr><th class="p-2 text-center">#</th><th class="p-2">اسم الطالب</th><th class="p-2 text-center">السعي (50)</th><th class="p-2 text-center">الفاينل (50)</th><th class="p-2 text-center">المجموع</th><th class="p-2 text-center">النتيجة</th></tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-200">${rows}</tbody>
                             </table>
@@ -1461,14 +1477,14 @@
             let exam = parseFloat(document.getElementById(`inp-t1exam-${studentId}`).value) || 0;
             let evalVal = parseFloat(document.getElementById(`inp-t1eval-${studentId}`).value) || 0;
             let sumEl = document.getElementById(`sum-t1-${studentId}`);
-            if (sumEl) sumEl.innerText = `${exam + evalVal} / 25`;
+            if (sumEl) sumEl.innerText = `${exam + evalVal}`;
         }
 
         function recalcTerm2Sum(studentId) {
             let exam = parseFloat(document.getElementById(`inp-t2exam-${studentId}`).value) || 0;
             let evalVal = parseFloat(document.getElementById(`inp-t2eval-${studentId}`).value) || 0;
             let sumEl = document.getElementById(`sum-t2-${studentId}`);
-            if (sumEl) sumEl.innerText = `${exam + evalVal} / 25`;
+            if (sumEl) sumEl.innerText = `${exam + evalVal}`;
         }
 
         function saveTerm1Grades() {
@@ -1535,9 +1551,10 @@
                     <div id="rep-section-attendance" class="space-y-2 hidden">
                         <div class="bg-indigo-500/10 border border-indigo-500/20 p-2.5 rounded-2xl mb-3 flex items-center gap-2">
                             <i class="fa-solid fa-user-clock text-indigo-600 text-base"></i>
-                            <p class="text-[10px] font-bold text-slate-700">متابعة الحضور، الغياب المتكرر، وتجاوز النسب</p>
+                            <p class="text-[10px] font-bold text-slate-700">متابعة الحضور، الغياب، والإجازات الرسمية</p>
                         </div>
 
+                        ${renderReportButton('att_absence_list', 'قائمة الغياب والمجازين', 'عرض وطباعة أسماء الطلاب الغائبين والمجازين فقط مع إحصائية الحضور والغياب والإجازات', 'fa-user-xmark', 'bg-rose-50 text-rose-600')}
                         ${renderReportButton('att_by_date', 'تقرير حضور يومي', 'كشف الحضور اليومي للطلاب حسب المرحلة والشعبة والتاريخ المحدد', 'fa-calendar-day', 'bg-sky-50 text-sky-600')}
                         ${renderReportButton('att_monthly', 'تقرير الحضور الشهري', 'طباعة تقرير شهري أو فترة زمنية محددة للحضور حسب المرحلة والشعبة', 'fa-calendar-days', 'bg-teal-50 text-teal-600')}
                         ${renderReportButton('att_by_student', 'حضور طالب', 'سجل وإحصائية حضور وغياب طالب مع تواريخ وأيام غياباته بالتفصيل', 'fa-user-tag', 'bg-indigo-50 text-indigo-600')}
@@ -1613,20 +1630,20 @@
             let stageOptions = Array.from(new Set(appState.classes.map(c => c.name))).map(c => `<option value="${c}">${c}</option>`).join('');
             let secOptions = Array.from(new Set(appState.classes.map(c => c.section))).map(s => `<option value="${s}">شعبة ${s}</option>`).join('');
 
-            // ترويسة الطباعة الرسمية - تم حذف عبارة "وثيقة أكاديمية رسمية" واسم الموضوع في منتصف الصفحة
-            function getPrintableHeader() {
+            // ترويسة الطباعة: الهامش العلوي يحتوي فقط على اسم الجامعة والكلية والأستاذ والشعار، بينما المرحلة والشعبة واسم المادة تكون في المتن قبل الجدول بسطرين
+            function getPrintableHeader(stageId) {
                 let logoHtml = appState.schoolInfo.logo 
                     ? `<img src="${appState.schoolInfo.logo}" class="w-16 h-16 object-contain">`
                     : `<div class="w-14 h-14 rounded-2xl border-2 border-slate-800 flex items-center justify-center text-slate-800 text-2xl font-black"><i class="fa-solid fa-graduation-cap"></i></div>`;
 
                 return `
-                    <!-- Print Only Official Academic Header -->
-                    <div class="print-only-header mb-6 pb-4 border-b-2 border-slate-900">
+                    <!-- Print Only Official Header (الهامش العلوي فقط) -->
+                    <div class="print-only-header mb-2 pb-3 border-b-2 border-slate-900">
                         <div class="flex justify-between items-center text-right">
                             <div>
                                 <h2 class="text-base font-black text-slate-900 m-0 leading-tight">جمهورية العراق</h2>
                                 <h3 class="text-sm font-extrabold text-slate-800 m-0">${appState.schoolInfo.name}</h3>
-                                <p class="text-xs font-bold text-slate-600 mt-1">الأستاذ: ${appState.schoolInfo.teacher} | مادة: ${appState.schoolInfo.subject}</p>
+                                <p class="text-xs font-bold text-slate-600 mt-1">الأستاذ: ${appState.schoolInfo.teacher}</p>
                             </div>
                             <div class="text-center px-4">
                                 ${logoHtml}
@@ -1651,14 +1668,87 @@
                             </button>
                         </div>
                     </div>
+
+                    <!-- المتن: المرحلة الدراسية والشعبة واسم المادة قبل الجدول بسطرين في متن الورقة -->
+                    <div class="print-body-title-block mb-4 pt-1 text-right">
+                        <div class="text-sm font-black text-slate-900 leading-normal">
+                            <span>المرحلة الدراسية والشعبة: </span>
+                            <span id="${stageId}-print-label" class="font-extrabold text-slate-900">جميع المراحل والشعب</span>
+                        </div>
+                        <div class="text-sm font-black text-slate-800 mt-1 leading-normal">
+                            <span>اسم المادة الدراسية: </span>
+                            <span class="font-extrabold text-slate-900">${appState.schoolInfo.subject}</span>
+                        </div>
+                    </div>
                 `;
             }
 
-            if (reportKey === 'att_by_date') {
+            // عنصر البحث السريع للمنظومة
+            function getSearchInputHtml(callbackName) {
+                return `
+                    <div class="no-print mb-2.5 print-hidden-control">
+                        <div class="relative flex items-center">
+                            <i class="fa-solid fa-magnifying-glass absolute right-3 text-slate-400 text-xs"></i>
+                            <input type="text" id="report-search-input" oninput="${callbackName}()" placeholder="البحث عن اسم طالب معين..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pr-8 pl-3 py-1.5 text-xs font-bold text-slate-800 outline-none focus:border-slate-900">
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 1. تقرير قائمة الغياب والمجازين
+            if (reportKey === 'att_absence_list') {
+                titleEl.innerText = "قائمة الغياب والمجازين";
+                iconEl.className = "fa-solid fa-user-xmark";
+                bodyEl.innerHTML = getPrintableHeader("rep-abs-stage") + `
+                    <div class="no-print grid grid-cols-3 gap-1.5 mb-2.5 print-hidden-control">
+                        <div>
+                            <label class="block text-[9px] font-bold text-slate-600 mb-1">التاريخ:</label>
+                            <input type="date" id="rep-abs-date" value="${new Date().toISOString().split('T')[0]}" onchange="updateAbsenceListReport()" class="w-full bg-slate-50 border p-1.5 rounded-xl text-[11px] font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-[9px] font-bold text-slate-600 mb-1">المرحلة:</label>
+                            <select id="rep-abs-stage" onchange="updateAbsenceListReport()" class="w-full bg-slate-50 border p-1.5 rounded-xl text-[11px] font-bold">
+                                <option value="all">جميع المراحل</option>
+                                ${stageOptions}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[9px] font-bold text-slate-600 mb-1">الشعبة:</label>
+                            <select id="rep-abs-sec" onchange="updateAbsenceListReport()" class="w-full bg-slate-50 border p-1.5 rounded-xl text-[11px] font-bold">
+                                <option value="all">جميع الشعب</option>
+                                ${secOptions}
+                            </select>
+                        </div>
+                    </div>
+
+                    ${getSearchInputHtml("updateAbsenceListReport")}
+
+                    <div id="absence-stats-box" class="grid grid-cols-3 gap-2 text-center text-xs font-bold mb-3">
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right">
+                            <thead class="bg-slate-900 text-amber-400 text-[10px]">
+                                <tr>
+                                    <th class="p-2 text-center">#</th>
+                                    <th class="p-2">اسم الطالب</th>
+                                    <th class="p-2 text-center">الحالة</th>
+                                    <th class="p-2 text-center">الهاتف</th>
+                                </tr>
+                            </thead>
+                            <tbody id="absence-list-report-body"></tbody>
+                        </table>
+                    </div>
+                `;
+                updateAbsenceListReport();
+            }
+
+            // 2. تقرير حضور يومي
+            else if (reportKey === 'att_by_date') {
                 titleEl.innerText = "تقرير حضور يومي";
                 iconEl.className = "fa-solid fa-calendar-day";
-                bodyEl.innerHTML = getPrintableHeader() + `
-                    <div class="no-print grid grid-cols-3 gap-1.5 mb-3 print-hidden-control">
+                bodyEl.innerHTML = getPrintableHeader("rep-att-date-stage") + `
+                    <div class="no-print grid grid-cols-3 gap-1.5 mb-2.5 print-hidden-control">
                         <div>
                             <label class="block text-[9px] font-bold text-slate-600 mb-1">التاريخ:</label>
                             <input type="date" id="rep-att-date-picker" value="${new Date().toISOString().split('T')[0]}" onchange="updateAttByDateReport()" class="w-full bg-slate-50 border p-1.5 rounded-xl text-[11px] font-bold">
@@ -1678,23 +1768,31 @@
                             </select>
                         </div>
                     </div>
+                    ${getSearchInputHtml("updateAttByDateReport")}
                     <div class="overflow-x-auto">
                         <table class="w-full text-right">
                             <thead class="bg-slate-900 text-amber-400 text-[10px]">
-                                <tr><th class="p-2 text-center">#</th><th class="p-2">اسم الطالب</th><th class="p-2 text-center">المرحلة والشعبة</th><th class="p-2 text-center">حالة الحضور</th></tr>
+                                <tr>
+                                    <th class="p-2 text-center">#</th>
+                                    <th class="p-2">اسم الطالب</th>
+                                    <th class="p-2 text-center">حالة الحضور</th>
+                                </tr>
                             </thead>
                             <tbody id="att-date-report-body"></tbody>
                         </table>
                     </div>
                 `;
                 updateAttByDateReport();
-            } else if (reportKey === 'att_monthly') {
+            } 
+            
+            // 3. تقرير الحضور الشهري
+            else if (reportKey === 'att_monthly') {
                 titleEl.innerText = "تقرير الحضور الشهري والمدد المحددة";
                 iconEl.className = "fa-solid fa-calendar-days";
 
                 let currentMonth = new Date().toISOString().slice(0, 7);
-                bodyEl.innerHTML = getPrintableHeader() + `
-                    <div class="no-print space-y-2 mb-3 print-hidden-control">
+                bodyEl.innerHTML = getPrintableHeader("rep-month-stage") + `
+                    <div class="no-print space-y-2 mb-2.5 print-hidden-control">
                         <div class="grid grid-cols-2 gap-2">
                             <div>
                                 <label class="block text-[9px] font-bold text-slate-600 mb-1">المرحلة الدراسية:</label>
@@ -1722,13 +1820,13 @@
                             </div>
                         </div>
                     </div>
+                    ${getSearchInputHtml("updateMonthlyAttReport")}
                     <div class="overflow-x-auto">
                         <table class="w-full text-right">
                             <thead class="bg-slate-900 text-amber-400 text-[10px]">
                                 <tr>
                                     <th class="p-2 text-center">#</th>
                                     <th class="p-2">اسم الطالب</th>
-                                    <th class="p-2 text-center">المرحلة/الشعبة</th>
                                     <th class="p-2 text-center text-emerald-400">حاضر</th>
                                     <th class="p-2 text-center text-rose-400">غائب</th>
                                     <th class="p-2 text-center text-amber-400">مجاز</th>
@@ -1740,12 +1838,15 @@
                     </div>
                 `;
                 updateMonthlyAttReport();
-            } else if (reportKey === 'grades_term_specific') {
+            } 
+            
+            // 4. تقرير درجات الفصل المحدد
+            else if (reportKey === 'grades_term_specific') {
                 titleEl.innerText = "تقرير درجات الفصل المحدد";
                 iconEl.className = "fa-solid fa-file-signature";
 
-                bodyEl.innerHTML = getPrintableHeader() + `
-                    <div class="no-print space-y-2 mb-3 print-hidden-control">
+                bodyEl.innerHTML = getPrintableHeader("rep-term-stage") + `
+                    <div class="no-print space-y-2 mb-2.5 print-hidden-control">
                         <div class="grid grid-cols-3 gap-1.5">
                             <div>
                                 <label class="block text-[9px] font-bold text-slate-600 mb-1">نوع الكشف:</label>
@@ -1772,6 +1873,7 @@
                             </div>
                         </div>
                     </div>
+                    ${getSearchInputHtml("updateTermSpecificGradesReport")}
                     <div class="overflow-x-auto">
                         <table class="w-full text-right">
                             <thead class="bg-slate-900 text-amber-400 text-[10px]" id="rep-term-thead">
@@ -1781,12 +1883,15 @@
                     </div>
                 `;
                 updateTermSpecificGradesReport();
-            } else if (reportKey === 'behavior_summary') {
+            } 
+            
+            // 5. تقرير المتابعة وحساب العلامات
+            else if (reportKey === 'behavior_summary') {
                 titleEl.innerText = "تقرير المتابعة وحساب العلامات";
                 iconEl.className = "fa-solid fa-star-half-stroke";
 
-                bodyEl.innerHTML = getPrintableHeader() + `
-                    <div class="no-print grid grid-cols-2 gap-2 mb-3 print-hidden-control">
+                bodyEl.innerHTML = getPrintableHeader("rep-beh-stage") + `
+                    <div class="no-print grid grid-cols-2 gap-2 mb-2.5 print-hidden-control">
                         <div>
                             <label class="block text-[10px] font-bold text-slate-600 mb-1">المرحلة الدراسية:</label>
                             <select id="rep-beh-stage" onchange="updateBehaviorReport()" class="w-full bg-slate-50 border p-2 rounded-xl text-xs font-bold">
@@ -1802,13 +1907,13 @@
                             </select>
                         </div>
                     </div>
+                    ${getSearchInputHtml("updateBehaviorReport")}
                     <div class="overflow-x-auto">
                         <table class="w-full text-right">
                             <thead class="bg-slate-900 text-amber-400 text-[10px]">
                                 <tr>
                                     <th class="p-2 text-center">#</th>
                                     <th class="p-2">اسم الطالب</th>
-                                    <th class="p-2 text-center">المرحلة/الشعبة</th>
                                     <th class="p-2 text-center text-emerald-400">مميز</th>
                                     <th class="p-2 text-center text-amber-400">متوسط</th>
                                     <th class="p-2 text-center text-rose-400">سيء</th>
@@ -1820,12 +1925,15 @@
                     </div>
                 `;
                 updateBehaviorReport();
-            } else if (reportKey === 'all_students') {
+            } 
+            
+            // 6. تقرير قائمة جميع الطلبة
+            else if (reportKey === 'all_students') {
                 titleEl.innerText = "تقرير قائمة جميع الطلبة";
                 iconEl.className = "fa-solid fa-users-line";
 
-                bodyEl.innerHTML = getPrintableHeader() + `
-                    <div class="no-print grid grid-cols-2 gap-2 mb-3 print-hidden-control">
+                bodyEl.innerHTML = getPrintableHeader("rep-filter-stage") + `
+                    <div class="no-print grid grid-cols-2 gap-2 mb-2.5 print-hidden-control">
                         <div>
                             <label class="block text-[10px] font-bold text-slate-600 mb-1">المرحلة:</label>
                             <select id="rep-filter-stage" onchange="updateAllStudentsReport()" class="w-full bg-slate-50 border p-2 rounded-xl text-xs font-bold">
@@ -1841,22 +1949,30 @@
                             </select>
                         </div>
                     </div>
+                    ${getSearchInputHtml("updateAllStudentsReport")}
                     <div class="overflow-x-auto">
                         <table class="w-full text-right">
                             <thead class="bg-slate-900 text-amber-400 text-[10px]">
-                                <tr><th class="p-2 text-center">#</th><th class="p-2">اسم الطالب</th><th class="p-2 text-center">المرحلة</th><th class="p-2 text-center">الشعبة</th><th class="p-2 text-center">الهاتف</th></tr>
+                                <tr>
+                                    <th class="p-2 text-center">#</th>
+                                    <th class="p-2">اسم الطالب</th>
+                                    <th class="p-2 text-center">الهاتف</th>
+                                </tr>
                             </thead>
                             <tbody id="all-students-report-body"></tbody>
                         </table>
                     </div>
                 `;
                 updateAllStudentsReport();
-            } else if (reportKey === 'students_by_section') {
+            } 
+            
+            // 7. تقرير طلبة حسب شعبة معينة
+            else if (reportKey === 'students_by_section') {
                 titleEl.innerText = "تقرير طلبة حسب شعبة معينة";
                 iconEl.className = "fa-solid fa-network-wired";
 
-                bodyEl.innerHTML = getPrintableHeader() + `
-                    <div class="no-print grid grid-cols-2 gap-2 mb-3 print-hidden-control">
+                bodyEl.innerHTML = getPrintableHeader("rep-sec-filter-stage") + `
+                    <div class="no-print grid grid-cols-2 gap-2 mb-2.5 print-hidden-control">
                         <div>
                             <label class="block text-[10px] font-bold text-slate-600 mb-1">اختر المرحلة:</label>
                             <select id="rep-sec-filter-stage" onchange="updateStudentsBySectionReport()" class="w-full bg-slate-50 border p-2 rounded-xl text-xs font-bold">
@@ -1872,20 +1988,151 @@
                             </select>
                         </div>
                     </div>
+                    ${getSearchInputHtml("updateStudentsBySectionReport")}
                     <div class="overflow-x-auto">
                         <table class="w-full text-right">
                             <thead class="bg-slate-900 text-amber-400 text-[10px]">
-                                <tr><th class="p-2 text-center">#</th><th class="p-2">اسم الطالب</th><th class="p-2 text-center">المرحلة والشعبة</th><th class="p-2 text-center">الهاتف</th></tr>
+                                <tr>
+                                    <th class="p-2 text-center">#</th>
+                                    <th class="p-2">اسم الطالب</th>
+                                    <th class="p-2 text-center">الهاتف</th>
+                                </tr>
                             </thead>
                             <tbody id="sec-students-report-body"></tbody>
                         </table>
                     </div>
                 `;
                 updateStudentsBySectionReport();
+            } 
+            
+            // 8. كشف درجات الشعبة
+            else if (reportKey === 'grades_by_section') {
+                titleEl.innerText = "كشف درجات وسعي الشعبة";
+                iconEl.className = "fa-solid fa-file-invoice";
+                bodyEl.innerHTML = getPrintableHeader("rep-grd-stage") + `
+                    <div class="no-print grid grid-cols-2 gap-2 mb-2.5 print-hidden-control">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 mb-1">المرحلة:</label>
+                            <select id="rep-grd-stage" onchange="updateGradesSectionReport()" class="w-full bg-slate-50 border p-2 rounded-xl text-xs font-bold">
+                                <option value="all">جميع المراحل</option>
+                                ${stageOptions}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 mb-1">الشعبة:</label>
+                            <select id="rep-grd-sec" onchange="updateGradesSectionReport()" class="w-full bg-slate-50 border p-2 rounded-xl text-xs font-bold">
+                                <option value="all">جميع الشعب</option>
+                                ${secOptions}
+                            </select>
+                        </div>
+                    </div>
+                    ${getSearchInputHtml("updateGradesSectionReport")}
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right">
+                            <thead class="bg-slate-900 text-amber-400 text-[9px]">
+                                <tr>
+                                    <th class="p-1.5 text-center">#</th>
+                                    <th class="p-1.5">الاسم</th>
+                                    <th class="p-1.5 text-center">السعي</th>
+                                    <th class="p-1.5 text-center">الفاينل</th>
+                                    <th class="p-1.5 text-center">المجموع</th>
+                                    <th class="p-1.5 text-center">النتيجة</th>
+                                </tr>
+                            </thead>
+                            <tbody id="grades-sec-report-body"></tbody>
+                        </table>
+                    </div>
+                `;
+                updateGradesSectionReport();
+            } 
+            
+            // 9. تقرير الطلبة الناجحين
+            else if (reportKey === 'grades_passed') {
+                titleEl.innerText = "تقرير الطلبة الناجحين";
+                iconEl.className = "fa-solid fa-circle-check";
+                bodyEl.innerHTML = getPrintableHeader("rep-passed-dummy") + `
+                    ${getSearchInputHtml("updatePassedReport")}
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right">
+                            <thead class="bg-slate-900 text-amber-400 text-[10px]">
+                                <tr>
+                                    <th class="p-2 text-center">#</th>
+                                    <th class="p-2">اسم الطالب</th>
+                                    <th class="p-2 text-center">المجموع</th>
+                                    <th class="p-2 text-center">الحالة</th>
+                                </tr>
+                            </thead>
+                            <tbody id="grades-passed-report-body"></tbody>
+                        </table>
+                    </div>
+                `;
+                updatePassedReport();
+            } 
+            
+            // 10. تقرير الطلبة الراسبين
+            else if (reportKey === 'grades_failed') {
+                titleEl.innerText = "تقرير الطلبة الراسبين";
+                iconEl.className = "fa-solid fa-circle-xmark";
+                bodyEl.innerHTML = getPrintableHeader("rep-failed-dummy") + `
+                    ${getSearchInputHtml("updateFailedReport")}
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right">
+                            <thead class="bg-slate-900 text-amber-400 text-[10px]">
+                                <tr>
+                                    <th class="p-2 text-center">#</th>
+                                    <th class="p-2">اسم الطالب</th>
+                                    <th class="p-2 text-center">المجموع</th>
+                                    <th class="p-2 text-center">الحالة</th>
+                                </tr>
+                            </thead>
+                            <tbody id="grades-failed-report-body"></tbody>
+                        </table>
+                    </div>
+                `;
+                updateFailedReport();
+            } 
+            
+            // 11. تجاوز نسبة الغياب
+            else if (reportKey === 'att_exceeded') {
+                titleEl.innerText = "تقرير الطلبة المتجاوزين لنسبة الغياب (10%)";
+                iconEl.className = "fa-solid fa-ban";
+                bodyEl.innerHTML = getPrintableHeader("rep-exc-stage") + `
+                    <div class="no-print grid grid-cols-2 gap-2 mb-2.5 print-hidden-control">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 mb-1">المرحلة:</label>
+                            <select id="rep-exc-stage" onchange="updateAttExceededReport()" class="w-full bg-slate-50 border p-2 rounded-xl text-xs font-bold">
+                                <option value="all">جميع المراحل</option>
+                                ${stageOptions}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 mb-1">الشعبة:</label>
+                            <select id="rep-exc-sec" onchange="updateAttExceededReport()" class="w-full bg-slate-50 border p-2 rounded-xl text-xs font-bold">
+                                <option value="all">جميع الشعب</option>
+                                ${secOptions}
+                            </select>
+                        </div>
+                    </div>
+                    ${getSearchInputHtml("updateAttExceededReport")}
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right">
+                            <thead class="bg-rose-950 text-rose-200 text-[10px]">
+                                <tr>
+                                    <th class="p-2 text-center">#</th>
+                                    <th class="p-2">اسم الطالب</th>
+                                    <th class="p-2 text-center">عدد الغيابات</th>
+                                    <th class="p-2 text-center">نسبة الغياب</th>
+                                </tr>
+                            </thead>
+                            <tbody id="att-exc-report-body"></tbody>
+                        </table>
+                    </div>
+                `;
+                updateAttExceededReport();
             } else if (reportKey === 'students_by_year') {
                 titleEl.innerText = "تقرير حسب السنة الدراسية";
                 iconEl.className = "fa-solid fa-calendar-check";
-                bodyEl.innerHTML = getPrintableHeader() + `
+                bodyEl.innerHTML = getPrintableHeader("dummy-st") + `
                     <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-2xl text-center mb-3">
                         <h4 class="font-extrabold text-sm text-indigo-900">السنة الدراسية الحالية: 2025 - 2026</h4>
                         <p class="text-xs text-indigo-600 mt-1">إجمالي عدد الطلبة المقيدين: <strong>${appState.students.length}</strong> طالب وطالبة</p>
@@ -1894,7 +2141,7 @@
             } else if (reportKey === 'att_by_student') {
                 titleEl.innerText = "تقرير حضور طالب مفصل";
                 iconEl.className = "fa-solid fa-user-tag";
-                bodyEl.innerHTML = getPrintableHeader() + `
+                bodyEl.innerHTML = getPrintableHeader("rep-att-st-stage") + `
                     <div class="no-print grid grid-cols-2 gap-2 mb-2 print-hidden-control">
                         <div>
                             <label class="block text-[10px] font-bold text-slate-600 mb-1">اختر المرحلة:</label>
@@ -1919,96 +2166,159 @@
                     <div id="rep-att-st-details"></div>
                 `;
                 updateAttStudentDropdown();
-            } else if (reportKey === 'att_exceeded') {
-                titleEl.innerText = "تقرير الطلبة المتجاوزين لنسبة الغياب (10%)";
-                iconEl.className = "fa-solid fa-ban";
-                bodyEl.innerHTML = getPrintableHeader() + `
-                    <div class="no-print grid grid-cols-2 gap-2 mb-3 print-hidden-control">
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-600 mb-1">المرحلة:</label>
-                            <select id="rep-exc-stage" onchange="updateAttExceededReport()" class="w-full bg-slate-50 border p-2 rounded-xl text-xs font-bold">
-                                <option value="all">جميع المراحل</option>
-                                ${stageOptions}
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-600 mb-1">الشعبة:</label>
-                            <select id="rep-exc-sec" onchange="updateAttExceededReport()" class="w-full bg-slate-50 border p-2 rounded-xl text-xs font-bold">
-                                <option value="all">جميع الشعب</option>
-                                ${secOptions}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-right">
-                            <thead class="bg-rose-950 text-rose-200 text-[10px]">
-                                <tr><th class="p-2 text-center">#</th><th class="p-2">اسم الطالب</th><th class="p-2 text-center">المرحلة والشعبة</th><th class="p-2 text-center">عدد الغيابات</th><th class="p-2 text-center">نسبة الغياب</th></tr>
-                            </thead>
-                            <tbody id="att-exc-report-body"></tbody>
-                        </table>
-                    </div>
-                `;
-                updateAttExceededReport();
-            } else if (reportKey === 'grades_by_section') {
-                titleEl.innerText = "كشف درجات وسعي الشعبة";
-                iconEl.className = "fa-solid fa-file-invoice";
-                bodyEl.innerHTML = getPrintableHeader() + `
-                    <div class="no-print grid grid-cols-2 gap-2 mb-3 print-hidden-control">
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-600 mb-1">المرحلة:</label>
-                            <select id="rep-grd-stage" onchange="updateGradesSectionReport()" class="w-full bg-slate-50 border p-2 rounded-xl text-xs font-bold">
-                                <option value="all">جميع المراحل</option>
-                                ${stageOptions}
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-600 mb-1">الشعبة:</label>
-                            <select id="rep-grd-sec" onchange="updateGradesSectionReport()" class="w-full bg-slate-50 border p-2 rounded-xl text-xs font-bold">
-                                <option value="all">جميع الشعب</option>
-                                ${secOptions}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-right">
-                            <thead class="bg-slate-900 text-amber-400 text-[9px]">
-                                <tr><th class="p-1.5 text-center">#</th><th class="p-1.5">الاسم</th><th class="p-1.5 text-center">السعي (50)</th><th class="p-1.5 text-center">الفاينل (50)</th><th class="p-1.5 text-center">المجموع</th><th class="p-1.5 text-center">النتيجة</th></tr>
-                            </thead>
-                            <tbody id="grades-sec-report-body"></tbody>
-                        </table>
-                    </div>
-                `;
-                updateGradesSectionReport();
-            } else if (reportKey === 'grades_passed') {
-                titleEl.innerText = "تقرير الطلبة الناجحين";
-                iconEl.className = "fa-solid fa-circle-check";
-                let passed = appState.students.filter(s => ((s.t1Exam||0)+(s.t1Eval||0)+(s.t2Exam||0)+(s.t2Eval||0)+(s.final||0)) >= 50);
-                let rows = passed.map(s => {
-                    let total = (s.t1Exam||0)+(s.t1Eval||0)+(s.t2Exam||0)+(s.t2Eval||0)+(s.final||0);
-                    return `<div class="p-2 bg-emerald-50 border border-emerald-200 rounded-xl mb-1 text-xs font-bold flex justify-between"><span>${s.name} (${s.class})</span><span class="text-emerald-700 font-black">${total} (ناجح)</span></div>`;
-                }).join('');
-                bodyEl.innerHTML = getPrintableHeader() + `<div class="space-y-1">${rows}</div>`;
-            } else if (reportKey === 'grades_failed') {
-                titleEl.innerText = "تقرير الطلبة الراسبين";
-                iconEl.className = "fa-solid fa-circle-xmark";
-                let failed = appState.students.filter(s => ((s.t1Exam||0)+(s.t1Eval||0)+(s.t2Exam||0)+(s.t2Eval||0)+(s.final||0)) < 50);
-                let rows = failed.map(s => {
-                    let total = (s.t1Exam||0)+(s.t1Eval||0)+(s.t2Exam||0)+(s.t2Eval||0)+(s.final||0);
-                    return `<div class="p-2 bg-rose-50 border border-rose-200 rounded-xl mb-1 text-xs font-bold flex justify-between"><span>${s.name} (${s.class})</span><span class="text-rose-700 font-black">${total} (راسب)</span></div>`;
-                }).join('');
-                bodyEl.innerHTML = getPrintableHeader() + `<div class="space-y-1">${rows || '<p class="text-xs text-center font-bold text-emerald-600">لا يوجد طلبة راسبين</p>'}</div>`;
             }
         }
 
+        // --- دوال تحديث وفلترة التقارير مع كتابة المرحلة والشعبة في المتن قبل الجدول ---
+        function setPrintHeaderStageLabel(elemId, stageVal, secVal) {
+            let labelEl = document.getElementById(`${elemId}-print-label`);
+            if (!labelEl) return;
+            let sText = stageVal === 'all' ? 'جميع المراحل' : stageVal;
+            let cText = secVal === 'all' ? 'جميع الشعب' : `شعبة (${secVal})`;
+            labelEl.innerText = `${sText} - ${cText}`;
+        }
+
+        function getSearchKeyword() {
+            let sInp = document.getElementById('report-search-input');
+            return sInp ? sInp.value.trim().toLowerCase() : '';
+        }
+
+        // 1. تقرير قائمة الغياب والمجازين
+        function updateAbsenceListReport() {
+            const dateVal = document.getElementById('rep-abs-date').value;
+            const stage = document.getElementById('rep-abs-stage').value;
+            const sec = document.getElementById('rep-abs-sec').value;
+            const searchKey = getSearchKeyword();
+
+            setPrintHeaderStageLabel('rep-abs-stage', stage, sec);
+
+            let filtered = appState.students.filter(s => 
+                (stage === 'all' || s.class === stage) && 
+                (sec === 'all' || s.section === sec)
+            );
+
+            let savedSession = appState.savedSessions.find(sess => sess.date === dateVal && (stage === 'all' || sess.className === stage) && (sec === 'all' || sess.section === sec));
+
+            let presentCount = 0;
+            let absentCount = 0;
+            let excusedCount = 0;
+            let targetStudents = [];
+
+            filtered.forEach(s => {
+                let status = "حاضر";
+                if (savedSession && savedSession.records && savedSession.records[s.id]) {
+                    let stCode = savedSession.records[s.id];
+                    status = stCode === 'absent' ? 'غائب' : stCode === 'excused' ? 'مجاز' : 'حاضر';
+                } else {
+                    let matchLog = (s.absenceLog || []).find(l => l.date === dateVal);
+                    if (matchLog) status = matchLog.status;
+                }
+
+                if (status === 'حاضر') presentCount++;
+                else if (status === 'غائب') {
+                    absentCount++;
+                    targetStudents.push({ ...s, currentStatus: 'غائب' });
+                } else if (status === 'مجاز') {
+                    excusedCount++;
+                    targetStudents.push({ ...s, currentStatus: 'مجاز' });
+                }
+            });
+
+            const statsBox = document.getElementById('absence-stats-box');
+            if (statsBox) {
+                statsBox.innerHTML = `
+                    <div class="p-2.5 bg-emerald-50 rounded-2xl border border-emerald-200">
+                        <span class="block text-emerald-700 text-lg font-black">${presentCount}</span>
+                        <span class="text-[10px] text-slate-500 font-bold">عدد الحضور</span>
+                    </div>
+                    <div class="p-2.5 bg-rose-50 rounded-2xl border border-rose-200">
+                        <span class="block text-rose-700 text-lg font-black">${absentCount}</span>
+                        <span class="text-[10px] text-slate-500 font-bold">عدد الغياب</span>
+                    </div>
+                    <div class="p-2.5 bg-amber-50 rounded-2xl border border-amber-200">
+                        <span class="block text-amber-700 text-lg font-black">${excusedCount}</span>
+                        <span class="text-[10px] text-slate-500 font-bold">عدد المجازين</span>
+                    </div>
+                `;
+            }
+
+            if (searchKey) {
+                targetStudents = targetStudents.filter(s => s.name.toLowerCase().includes(searchKey));
+            }
+
+            let rows = targetStudents.map((s, i) => `
+                <tr class="border-b border-slate-100 text-[11px]">
+                    <td class="p-2 font-bold text-center">${i+1}</td>
+                    <td class="p-2 font-bold text-slate-800">${s.name}</td>
+                    <td class="p-2 text-center">
+                        <span class="px-3 py-0.5 rounded-full text-[10px] font-black ${s.currentStatus === 'غائب' ? 'bg-rose-100 text-rose-800 border border-rose-300' : 'bg-amber-100 text-amber-800 border border-amber-300'}">
+                            ${s.currentStatus}
+                        </span>
+                    </td>
+                    <td class="p-2 text-center text-slate-600">${s.phone || 'غير مسجل'}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('absence-list-report-body').innerHTML = rows || '<tr><td colspan="4" class="p-4 text-center text-xs font-bold text-emerald-600">لا يوجد أي طلاب غائبين أو مجازين في هذا التاريخ</td></tr>';
+        }
+
+        // 2. تقرير حضور يومي
+        function updateAttByDateReport() {
+            const selDate = document.getElementById('rep-att-date-picker').value;
+            const stage = document.getElementById('rep-att-date-stage').value;
+            const sec = document.getElementById('rep-att-date-sec').value;
+            const searchKey = getSearchKeyword();
+
+            setPrintHeaderStageLabel('rep-att-date-stage', stage, sec);
+            
+            let filtered = appState.students.filter(s => 
+                (stage === 'all' || s.class === stage) && 
+                (sec === 'all' || s.section === sec) &&
+                (!searchKey || s.name.toLowerCase().includes(searchKey))
+            );
+            
+            let savedSession = appState.savedSessions.find(sess => sess.date === selDate && (stage === 'all' || sess.className === stage) && (sec === 'all' || sess.section === sec));
+            
+            let rows = filtered.map((s, i) => {
+                let status = "حاضر";
+                if (savedSession && savedSession.records && savedSession.records[s.id]) {
+                    let stCode = savedSession.records[s.id];
+                    status = stCode === 'absent' ? 'غائب' : stCode === 'excused' ? 'مجاز' : 'حاضر';
+                } else {
+                    let matchLog = (s.absenceLog || []).find(l => l.date === selDate);
+                    if (matchLog) status = matchLog.status;
+                }
+                
+                let statusBadge = status === 'حاضر' ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : status === 'غائب' ? 'bg-rose-100 text-rose-800 border-rose-300' : 'bg-amber-100 text-amber-800 border-amber-300';
+                
+                return `
+                    <tr class="border-b border-slate-100 text-[11px]">
+                        <td class="p-2 font-bold text-center">${i+1}</td>
+                        <td class="p-2 font-bold text-slate-800">${s.name}</td>
+                        <td class="p-2 text-center">
+                            <span class="px-3 py-1 rounded-full text-[10px] font-black border ${statusBadge}">${status}</span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
+            document.getElementById('att-date-report-body').innerHTML = rows || '<tr><td colspan="3" class="p-3 text-center text-xs text-slate-400">لا يوجد طلبة مطابقين للبحث أو الفلتر</td></tr>';
+        }
+
+        // 3. تقرير الحضور الشهري
         function updateMonthlyAttReport() {
             const stage = document.getElementById('rep-month-stage').value;
             const sec = document.getElementById('rep-month-sec').value;
             const fromDate = document.getElementById('rep-month-from').value;
             const toDate = document.getElementById('rep-month-to').value;
+            const searchKey = getSearchKeyword();
+
+            setPrintHeaderStageLabel('rep-month-stage', stage, sec);
 
             let filtered = appState.students.filter(s => 
                 (stage === 'all' || s.class === stage) && 
-                (sec === 'all' || s.section === sec)
+                (sec === 'all' || s.section === sec) &&
+                (!searchKey || s.name.toLowerCase().includes(searchKey))
             );
 
             let rows = filtered.map((s, i) => {
@@ -2035,7 +2345,6 @@
                     <tr class="border-b border-slate-100 text-[11px]">
                         <td class="p-2 font-bold text-center">${i+1}</td>
                         <td class="p-2 font-bold text-slate-800">${s.name}</td>
-                        <td class="p-2 text-center text-slate-600">${s.class} (${s.section})</td>
                         <td class="p-2 text-center font-black text-emerald-600">${pCount}</td>
                         <td class="p-2 text-center font-black text-rose-600">${aCount}</td>
                         <td class="p-2 text-center font-black text-amber-600">${eCount}</td>
@@ -2048,28 +2357,33 @@
                 `;
             }).join('');
 
-            document.getElementById('att-monthly-report-body').innerHTML = rows || '<tr><td colspan="7" class="p-3 text-center text-xs text-slate-400">لا يوجد طلبة مطابقين للشروط</td></tr>';
+            document.getElementById('att-monthly-report-body').innerHTML = rows || '<tr><td colspan="6" class="p-3 text-center text-xs text-slate-400">لا يوجد طلبة مطابقين للشروط</td></tr>';
         }
 
+        // 4. تقرير درجات الفصل المحدد
         function updateTermSpecificGradesReport() {
             const termType = document.getElementById('rep-term-type').value;
             const stage = document.getElementById('rep-term-stage').value;
             const sec = document.getElementById('rep-term-sec').value;
+            const searchKey = getSearchKeyword();
+
+            setPrintHeaderStageLabel('rep-term-stage', stage, sec);
 
             let theadEl = document.getElementById('rep-term-thead');
             if (termType === 't1') {
-                theadEl.innerHTML = `<tr><th class="p-2 text-center">#</th><th class="p-2">اسم الطالب</th><th class="p-2 text-center">المرحلة/الشعبة</th><th class="p-2 text-center">امتحان (20)</th><th class="p-2 text-center">تقييم (5)</th><th class="p-2 text-center">الفصل الأول (25)</th></tr>`;
+                theadEl.innerHTML = `<tr><th class="p-2 text-center">#</th><th class="p-2">اسم الطالب</th><th class="p-2 text-center">امتحان (20)</th><th class="p-2 text-center">تقييم (5)</th><th class="p-2 text-center">المجموع</th></tr>`;
             } else if (termType === 't2') {
-                theadEl.innerHTML = `<tr><th class="p-2 text-center">#</th><th class="p-2">اسم الطالب</th><th class="p-2 text-center">المرحلة/الشعبة</th><th class="p-2 text-center">امتحان (20)</th><th class="p-2 text-center">تقييم (5)</th><th class="p-2 text-center">الفصل الثاني (25)</th></tr>`;
+                theadEl.innerHTML = `<tr><th class="p-2 text-center">#</th><th class="p-2">اسم الطالب</th><th class="p-2 text-center">امتحان (20)</th><th class="p-2 text-center">تقييم (5)</th><th class="p-2 text-center">المجموع</th></tr>`;
             } else if (termType === 'saai') {
-                theadEl.innerHTML = `<tr><th class="p-2 text-center">#</th><th class="p-2">اسم الطالب</th><th class="p-2 text-center">فصل أول (25)</th><th class="p-2 text-center">فصل ثاني (25)</th><th class="p-2 text-center">درجة السعي (50)</th></tr>`;
+                theadEl.innerHTML = `<tr><th class="p-2 text-center">#</th><th class="p-2">اسم الطالب</th><th class="p-2 text-center">فصل أول</th><th class="p-2 text-center">فصل ثاني</th><th class="p-2 text-center">درجة السعي</th></tr>`;
             } else if (termType === 'final') {
-                theadEl.innerHTML = `<tr><th class="p-2 text-center">#</th><th class="p-2">اسم الطالب</th><th class="p-2 text-center">السعي (50)</th><th class="p-2 text-center">الامتحان النهائي (50)</th><th class="p-2 text-center">المجموع (100)</th></tr>`;
+                theadEl.innerHTML = `<tr><th class="p-2 text-center">#</th><th class="p-2">اسم الطالب</th><th class="p-2 text-center">السعي</th><th class="p-2 text-center">النهائي</th><th class="p-2 text-center">المجموع</th></tr>`;
             }
 
             let filtered = appState.students.filter(s => 
                 (stage === 'all' || s.class === stage) && 
-                (sec === 'all' || s.section === sec)
+                (sec === 'all' || s.section === sec) &&
+                (!searchKey || s.name.toLowerCase().includes(searchKey))
             );
 
             let rows = filtered.map((s, i) => {
@@ -2084,10 +2398,9 @@
                         <tr class="border-b border-slate-100 text-[11px]">
                             <td class="p-2 text-center font-bold">${i+1}</td>
                             <td class="p-2 font-bold text-slate-800">${s.name}</td>
-                            <td class="p-2 text-center text-slate-600">${s.class} (${s.section})</td>
                             <td class="p-2 text-center">${s.t1Exam||0}</td>
                             <td class="p-2 text-center">${s.t1Eval||0}</td>
-                            <td class="p-2 text-center font-black text-indigo-700">${t1Sum} / 25</td>
+                            <td class="p-2 text-center font-black text-indigo-700 text-sm">${t1Sum}</td>
                         </tr>
                     `;
                 } else if (termType === 't2') {
@@ -2095,10 +2408,9 @@
                         <tr class="border-b border-slate-100 text-[11px]">
                             <td class="p-2 text-center font-bold">${i+1}</td>
                             <td class="p-2 font-bold text-slate-800">${s.name}</td>
-                            <td class="p-2 text-center text-slate-600">${s.class} (${s.section})</td>
                             <td class="p-2 text-center">${s.t2Exam||0}</td>
                             <td class="p-2 text-center">${s.t2Eval||0}</td>
-                            <td class="p-2 text-center font-black text-sky-700">${t2Sum} / 25</td>
+                            <td class="p-2 text-center font-black text-sky-700 text-sm">${t2Sum}</td>
                         </tr>
                     `;
                 } else if (termType === 'saai') {
@@ -2106,10 +2418,9 @@
                         <tr class="border-b border-slate-100 text-[11px]">
                             <td class="p-2 text-center font-bold">${i+1}</td>
                             <td class="p-2 font-bold text-slate-800">${s.name}</td>
-                            <td class="p-2 text-center text-slate-600">${s.class} (${s.section})</td>
                             <td class="p-2 text-center font-semibold text-indigo-700">${t1Sum}</td>
                             <td class="p-2 text-center font-semibold text-sky-700">${t2Sum}</td>
-                            <td class="p-2 text-center font-black text-amber-600 text-xs">${saai} / 50</td>
+                            <td class="p-2 text-center font-black text-amber-600 text-sm">${saai}</td>
                         </tr>
                     `;
                 } else if (termType === 'final') {
@@ -2117,24 +2428,29 @@
                         <tr class="border-b border-slate-100 text-[11px]">
                             <td class="p-2 text-center font-bold">${i+1}</td>
                             <td class="p-2 font-bold text-slate-800">${s.name}</td>
-                            <td class="p-2 text-center text-slate-600">${s.class} (${s.section})</td>
                             <td class="p-2 text-center font-bold text-slate-700">${saai}</td>
-                            <td class="p-2 text-center font-black text-purple-700">${final} / 50</td>
-                            <td class="p-2 text-center font-black ${total>=50?'text-emerald-700':'text-rose-700'}">${total} / 100</td>
+                            <td class="p-2 text-center font-black text-purple-700">${final}</td>
+                            <td class="p-2 text-center font-black ${total>=50?'text-emerald-700':'text-rose-700'} text-sm">${total}</td>
                         </tr>
                     `;
                 }
             }).join('');
 
-            document.getElementById('term-grades-report-body').innerHTML = rows || '<tr><td colspan="6" class="p-3 text-center text-xs text-slate-400">لا يوجد طلبة</td></tr>';
+            document.getElementById('term-grades-report-body').innerHTML = rows || '<tr><td colspan="5" class="p-3 text-center text-xs text-slate-400">لا يوجد طلبة</td></tr>';
         }
 
+        // 5. تقرير المتابعة
         function updateBehaviorReport() {
             const stage = document.getElementById('rep-beh-stage').value;
             const sec = document.getElementById('rep-beh-sec').value;
+            const searchKey = getSearchKeyword();
+
+            setPrintHeaderStageLabel('rep-beh-stage', stage, sec);
+
             let filtered = appState.students.filter(s => 
                 (stage === 'all' || s.class === stage) && 
-                (sec === 'all' || s.section === sec)
+                (sec === 'all' || s.section === sec) &&
+                (!searchKey || s.name.toLowerCase().includes(searchKey))
             );
 
             let rows = filtered.map((s, i) => {
@@ -2160,7 +2476,6 @@
                     <tr class="border-b border-slate-100 text-[11px]">
                         <td class="p-2 font-bold text-center">${i+1}</td>
                         <td class="p-2 font-bold text-slate-800">${s.name}</td>
-                        <td class="p-2 text-center text-slate-600">${s.class} (${s.section})</td>
                         <td class="p-2 text-center font-black text-emerald-600">${excellentCount}</td>
                         <td class="p-2 text-center font-black text-amber-600">${averageCount}</td>
                         <td class="p-2 text-center font-black text-rose-600">${poorCount}</td>
@@ -2173,50 +2488,178 @@
                 `;
             }).join('');
 
-            document.getElementById('behavior-report-body').innerHTML = rows || '<tr><td colspan="7" class="p-3 text-center text-xs text-slate-400">لا يوجد طلبة مطابقين للشروط</td></tr>';
+            document.getElementById('behavior-report-body').innerHTML = rows || '<tr><td colspan="6" class="p-3 text-center text-xs text-slate-400">لا يوجد طلبة مطابقين للشروط</td></tr>';
         }
 
+        // 6. تقرير قائمة جميع الطلبة
         function updateAllStudentsReport() {
             const stage = document.getElementById('rep-filter-stage').value;
             const sec = document.getElementById('rep-filter-section').value;
+            const searchKey = getSearchKeyword();
+
+            setPrintHeaderStageLabel('rep-filter-stage', stage, sec);
+
             let filtered = appState.students.filter(s => 
                 (stage === 'all' || s.class === stage) && 
-                (sec === 'all' || s.section === sec)
+                (sec === 'all' || s.section === sec) &&
+                (!searchKey || s.name.toLowerCase().includes(searchKey))
             );
+
             let rows = filtered.map((s, i) => `
                 <tr class="border-b border-slate-100 text-[11px]">
                     <td class="p-2 font-bold text-center">${i+1}</td>
                     <td class="p-2 font-bold text-slate-800">${s.name}</td>
-                    <td class="p-2 text-center">${s.class}</td>
-                    <td class="p-2 text-center">${s.section}</td>
-                    <td class="p-2 text-center text-slate-500 font-medium">${s.phone || 'غير مسجل'}</td>
+                    <td class="p-2 text-center text-slate-600">${s.phone || 'غير مسجل'}</td>
                 </tr>
             `).join('');
-            document.getElementById('all-students-report-body').innerHTML = rows || '<tr><td colspan="5" class="p-3 text-center text-xs text-slate-400">لا يوجد طلبة مطبقين للشروط</td></tr>';
+            document.getElementById('all-students-report-body').innerHTML = rows || '<tr><td colspan="3" class="p-3 text-center text-xs text-slate-400">لا يوجد طلبة مطبقين للشروط</td></tr>';
         }
 
+        // 7. تقرير طلبة حسب شعبة
         function updateStudentsBySectionReport() {
             const stage = document.getElementById('rep-sec-filter-stage').value;
             const sec = document.getElementById('rep-sec-filter-section').value;
+            const searchKey = getSearchKeyword();
+
+            setPrintHeaderStageLabel('rep-sec-filter-stage', stage, sec);
+
             let filtered = appState.students.filter(s => 
                 (stage === 'all' || s.class === stage) && 
-                (sec === 'all' || s.section === sec)
+                (sec === 'all' || s.section === sec) &&
+                (!searchKey || s.name.toLowerCase().includes(searchKey))
             );
             let rows = filtered.map((s, i) => `
                 <tr class="border-b border-slate-100 text-[11px]">
                     <td class="p-2 font-bold text-center">${i+1}</td>
                     <td class="p-2 font-bold text-slate-800">${s.name}</td>
-                    <td class="p-2 text-center">${s.class} (${s.section})</td>
-                    <td class="p-2 text-center text-slate-500">${s.phone}</td>
+                    <td class="p-2 text-center text-slate-600">${s.phone || 'غير مسجل'}</td>
                 </tr>
             `).join('');
-            document.getElementById('sec-students-report-body').innerHTML = rows || '<tr><td colspan="4" class="p-3 text-center text-xs text-slate-400">لا يوجد طلبة في هذه المرحلة/الشعبة</td></tr>';
+            document.getElementById('sec-students-report-body').innerHTML = rows || '<tr><td colspan="3" class="p-3 text-center text-xs text-slate-400">لا يوجد طلبة في هذه المرحلة/الشعبة</td></tr>';
+        }
+
+        // 8. كشف درجات الشعبة
+        function updateGradesSectionReport() {
+            const stage = document.getElementById('rep-grd-stage').value;
+            const sec = document.getElementById('rep-grd-sec').value;
+            const searchKey = getSearchKeyword();
+
+            setPrintHeaderStageLabel('rep-grd-stage', stage, sec);
+            
+            let filtered = appState.students.filter(s => 
+                (stage === 'all' || s.class === stage) && 
+                (sec === 'all' || s.section === sec) &&
+                (!searchKey || s.name.toLowerCase().includes(searchKey))
+            );
+            
+            let rows = filtered.map((s, i) => {
+                let saai = (s.t1Exam||0)+(s.t1Eval||0)+(s.t2Exam||0)+(s.t2Eval||0);
+                let final = s.final || 0;
+                let total = saai + final;
+                let passed = total >= 50;
+                return `
+                    <tr class="border-b border-slate-100 text-[10px]">
+                        <td class="p-1.5 font-bold text-center">${i+1}</td>
+                        <td class="p-1.5 font-bold text-slate-800">${s.name}</td>
+                        <td class="p-1.5 text-center font-semibold text-indigo-700">${saai}</td>
+                        <td class="p-1.5 text-center font-semibold text-purple-700">${final}</td>
+                        <td class="p-1.5 text-center font-black ${passed ? 'text-emerald-700' : 'text-rose-700'} text-xs">${total}</td>
+                        <td class="p-1.5 text-center">
+                            <span class="px-2 py-0.5 rounded-full font-black text-[9px] ${passed ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-rose-100 text-rose-800 border border-rose-300'}">
+                                ${passed ? 'ناجح' : 'راسب'}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
+            document.getElementById('grades-sec-report-body').innerHTML = rows || '<tr><td colspan="6" class="p-3 text-center text-xs text-slate-400">لا يوجد طلبة لتقرير الدرجات</td></tr>';
+        }
+
+        // 9. الطلبة الناجحون
+        function updatePassedReport() {
+            const searchKey = getSearchKeyword();
+            let passed = appState.students.filter(s => {
+                let tot = ((s.t1Exam||0)+(s.t1Eval||0)+(s.t2Exam||0)+(s.t2Eval||0)+(s.final||0));
+                return tot >= 50 && (!searchKey || s.name.toLowerCase().includes(searchKey));
+            });
+            let rows = passed.map((s, i) => {
+                let total = (s.t1Exam||0)+(s.t1Eval||0)+(s.t2Exam||0)+(s.t2Eval||0)+(s.final||0);
+                return `
+                    <tr class="border-b border-slate-100 text-[11px]">
+                        <td class="p-2 font-bold text-center">${i+1}</td>
+                        <td class="p-2 font-bold text-slate-800">${s.name}</td>
+                        <td class="p-2 text-center font-black text-emerald-700 text-xs">${total}</td>
+                        <td class="p-2 text-center"><span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 font-bold rounded-full text-[10px]">ناجح ✓</span></td>
+                    </tr>
+                `;
+            }).join('');
+            document.getElementById('grades-passed-report-body').innerHTML = rows || '<tr><td colspan="4" class="p-3 text-center text-xs text-slate-400">لا يوجد طلبة</td></tr>';
+        }
+
+        // 10. الطلبة الراسبون
+        function updateFailedReport() {
+            const searchKey = getSearchKeyword();
+            let failed = appState.students.filter(s => {
+                let tot = ((s.t1Exam||0)+(s.t1Eval||0)+(s.t2Exam||0)+(s.t2Eval||0)+(s.final||0));
+                return tot < 50 && (!searchKey || s.name.toLowerCase().includes(searchKey));
+            });
+            let rows = failed.map((s, i) => {
+                let total = (s.t1Exam||0)+(s.t1Eval||0)+(s.t2Exam||0)+(s.t2Eval||0)+(s.final||0);
+                return `
+                    <tr class="border-b border-slate-100 text-[11px]">
+                        <td class="p-2 font-bold text-center">${i+1}</td>
+                        <td class="p-2 font-bold text-slate-800">${s.name}</td>
+                        <td class="p-2 text-center font-black text-rose-700 text-xs">${total}</td>
+                        <td class="p-2 text-center"><span class="px-2 py-0.5 bg-rose-100 text-rose-800 font-bold rounded-full text-[10px]">راسب ✗</span></td>
+                    </tr>
+                `;
+            }).join('');
+            document.getElementById('grades-failed-report-body').innerHTML = rows || '<tr><td colspan="4" class="p-3 text-center text-xs text-slate-400">لا يوجد طلبة راسبين</td></tr>';
+        }
+
+        // 11. تجاوز نسبة الغياب
+        function updateAttExceededReport() {
+            const stage = document.getElementById('rep-exc-stage').value;
+            const sec = document.getElementById('rep-exc-sec').value;
+            const searchKey = getSearchKeyword();
+
+            setPrintHeaderStageLabel('rep-exc-stage', stage, sec);
+            
+            let filtered = appState.students.filter(s => 
+                (stage === 'all' || s.class === stage) && 
+                (sec === 'all' || s.section === sec) &&
+                (!searchKey || s.name.toLowerCase().includes(searchKey))
+            );
+            
+            let exceededStudents = filtered.filter(s => {
+                let totalLec = (s.attendanceCount || 0) + (s.absenceCount || 0) + (s.excusedCount || 0) || 15;
+                let rate = ((s.absenceCount || 0) / totalLec) * 100;
+                return rate >= 10 || s.absenceCount >= 2;
+            });
+            
+            let rows = exceededStudents.map((s, i) => {
+                let totalLec = (s.attendanceCount || 0) + (s.absenceCount || 0) + (s.excusedCount || 0) || 15;
+                let rate = (((s.absenceCount || 0) / totalLec) * 100).toFixed(1);
+                return `
+                    <tr class="border-b border-rose-100 text-[11px] bg-rose-50/50">
+                        <td class="p-2 font-bold text-center">${i+1}</td>
+                        <td class="p-2 font-bold text-slate-900">${s.name}</td>
+                        <td class="p-2 text-center font-black text-rose-700">${s.absenceCount} غيابات</td>
+                        <td class="p-2 text-center font-black text-rose-800">${rate}%</td>
+                    </tr>
+                `;
+            }).join('');
+            
+            document.getElementById('att-exc-report-body').innerHTML = rows || '<tr><td colspan="4" class="p-3 text-center text-xs text-emerald-600 font-bold">لا يوجد طلبة تجاوزوا نسبة 10% من الغياب في هذه المرحلة/الشعبة</td></tr>';
         }
 
         function updateAttStudentDropdown() {
             const stage = document.getElementById('rep-att-st-stage').value;
             const sec = document.getElementById('rep-att-st-sec').value;
             const stSelect = document.getElementById('rep-att-st-id');
+
+            setPrintHeaderStageLabel('rep-att-st-stage', stage, sec);
             
             let filtered = appState.students.filter(s => 
                 (stage === 'all' || s.class === stage) && 
@@ -2282,110 +2725,6 @@
             `;
         }
 
-        function updateAttByDateReport() {
-            const selDate = document.getElementById('rep-att-date-picker').value;
-            const stage = document.getElementById('rep-att-date-stage').value;
-            const sec = document.getElementById('rep-att-date-sec').value;
-            
-            let filtered = appState.students.filter(s => 
-                (stage === 'all' || s.class === stage) && 
-                (sec === 'all' || s.section === sec)
-            );
-            
-            let savedSession = appState.savedSessions.find(sess => sess.date === selDate && (stage === 'all' || sess.className === stage) && (sec === 'all' || sess.section === sec));
-            
-            let rows = filtered.map((s, i) => {
-                let status = "حاضر";
-                if (savedSession && savedSession.records && savedSession.records[s.id]) {
-                    let stCode = savedSession.records[s.id];
-                    status = stCode === 'absent' ? 'غائب' : stCode === 'excused' ? 'مجاز' : 'حاضر';
-                } else {
-                    let matchLog = (s.absenceLog || []).find(l => l.date === selDate);
-                    if (matchLog) status = matchLog.status;
-                }
-                
-                let statusBadge = status === 'حاضر' ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : status === 'غائب' ? 'bg-rose-100 text-rose-800 border-rose-300' : 'bg-amber-100 text-amber-800 border-amber-300';
-                
-                return `
-                    <tr class="border-b border-slate-100 text-[11px]">
-                        <td class="p-2 font-bold text-center">${i+1}</td>
-                        <td class="p-2 font-bold text-slate-800">${s.name}</td>
-                        <td class="p-2 text-center">${s.class} (${s.section})</td>
-                        <td class="p-2 text-center">
-                            <span class="px-3 py-1 rounded-full text-[10px] font-black border ${statusBadge}">${status}</span>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-            
-            document.getElementById('att-date-report-body').innerHTML = rows || '<tr><td colspan="4" class="p-3 text-center text-xs text-slate-400">لا يوجد طلبة لمرحلة/شعبة محددة</td></tr>';
-        }
-
-        function updateAttExceededReport() {
-            const stage = document.getElementById('rep-exc-stage').value;
-            const sec = document.getElementById('rep-exc-sec').value;
-            
-            let filtered = appState.students.filter(s => 
-                (stage === 'all' || s.class === stage) && 
-                (sec === 'all' || s.section === sec)
-            );
-            
-            let exceededStudents = filtered.filter(s => {
-                let totalLec = (s.attendanceCount || 0) + (s.absenceCount || 0) + (s.excusedCount || 0) || 15;
-                let rate = ((s.absenceCount || 0) / totalLec) * 100;
-                return rate >= 10 || s.absenceCount >= 2;
-            });
-            
-            let rows = exceededStudents.map((s, i) => {
-                let totalLec = (s.attendanceCount || 0) + (s.absenceCount || 0) + (s.excusedCount || 0) || 15;
-                let rate = (((s.absenceCount || 0) / totalLec) * 100).toFixed(1);
-                return `
-                    <tr class="border-b border-rose-100 text-[11px] bg-rose-50/50">
-                        <td class="p-2 font-bold text-center">${i+1}</td>
-                        <td class="p-2 font-bold text-slate-900">${s.name}</td>
-                        <td class="p-2 text-center font-medium">${s.class} (${s.section})</td>
-                        <td class="p-2 text-center font-black text-rose-700">${s.absenceCount} غيابات</td>
-                        <td class="p-2 text-center font-black text-rose-800">${rate}%</td>
-                    </tr>
-                `;
-            }).join('');
-            
-            document.getElementById('att-exc-report-body').innerHTML = rows || '<tr><td colspan="5" class="p-3 text-center text-xs text-emerald-600 font-bold">لا يوجد طلبة تجاوزوا نسبة 10% من الغياب في هذه المرحلة/الشعبة</td></tr>';
-        }
-
-        function updateGradesSectionReport() {
-            const stage = document.getElementById('rep-grd-stage').value;
-            const sec = document.getElementById('rep-grd-sec').value;
-            
-            let filtered = appState.students.filter(s => 
-                (stage === 'all' || s.class === stage) && 
-                (sec === 'all' || s.section === sec)
-            );
-            
-            let rows = filtered.map((s, i) => {
-                let saai = (s.t1Exam||0)+(s.t1Eval||0)+(s.t2Exam||0)+(s.t2Eval||0);
-                let final = s.final || 0;
-                let total = saai + final;
-                let passed = total >= 50;
-                return `
-                    <tr class="border-b border-slate-100 text-[10px]">
-                        <td class="p-1.5 font-bold text-center">${i+1}</td>
-                        <td class="p-1.5 font-bold text-slate-800">${s.name}</td>
-                        <td class="p-1.5 text-center font-semibold text-indigo-700">${saai}</td>
-                        <td class="p-1.5 text-center font-semibold text-purple-700">${final}</td>
-                        <td class="p-1.5 text-center font-black ${passed ? 'text-emerald-700' : 'text-rose-700'}">${total}</td>
-                        <td class="p-1.5 text-center">
-                            <span class="px-2 py-0.5 rounded-full font-black text-[9px] ${passed ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-rose-100 text-rose-800 border border-rose-300'}">
-                                ${passed ? 'ناجح' : 'راسب'}
-                            </span>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-            
-            document.getElementById('grades-sec-report-body').innerHTML = rows || '<tr><td colspan="6" class="p-3 text-center text-xs text-slate-400">لا يوجد طلبة لتقرير الدرجات</td></tr>';
-        }
-
         // --- Modals Engine ---
         function triggerAction(actionKey) {
             currentModalType = actionKey;
@@ -2420,7 +2759,9 @@
                         </div>
                     </div>
                 `;
-            } else if (actionKey === 'add_student') {
+            } 
+            // تعديل تسجيل طالب جديد ليكون رقم الواتساب اختيارياً
+            else if (actionKey === 'add_student') {
                 titleEl.innerText = "تسجيل طالب جديد";
                 iconEl.className = "fa-solid fa-user-plus";
                 let classDropdowns = appState.classes.map(c => `<option value="${c.name} - ${c.section}">${c.name} (شعبة ${c.section})</option>`).join('');
@@ -2428,16 +2769,16 @@
                 bodyEl.innerHTML = `
                     <div class="space-y-2.5">
                         <div>
-                            <label class="block text-[10px] font-bold text-slate-600 mb-1">اسم الطالب الرباعي:</label>
-                            <input id="inp-std-name" type="text" placeholder="مثال: أحمد محمد كريم علي" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs outline-none focus:border-slate-900">
+                            <label class="block text-[10px] font-bold text-slate-600 mb-1">اسم الطالب الرباعي: <span class="text-rose-500">*</span></label>
+                            <input id="inp-std-name" type="text" placeholder="مثال: أحمد محمد كريم علي" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs outline-none focus:border-slate-900 font-bold">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold text-slate-600 mb-1">رقم الواتساب / الهاتف:</label>
-                            <input id="inp-std-phone" type="text" placeholder="07xxxxxxxxx" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs outline-none focus:border-slate-900">
+                            <label class="block text-[10px] font-bold text-slate-600 mb-1">رقم الواتساب / الهاتف: <span class="text-slate-400 font-medium">(اختياري)</span></label>
+                            <input id="inp-std-phone" type="text" placeholder="07xxxxxxxxx (يمكن تركه فارغاً)" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs outline-none focus:border-slate-900">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold text-slate-600 mb-1">المرحلة والشعبة:</label>
-                            <select id="inp-std-class" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs outline-none focus:border-slate-900">
+                            <label class="block text-[10px] font-bold text-slate-600 mb-1">المرحلة والشعبة: <span class="text-rose-500">*</span></label>
+                            <select id="inp-std-class" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs outline-none focus:border-slate-900 font-bold">
                                 ${classDropdowns}
                             </select>
                         </div>
@@ -2457,20 +2798,6 @@
                         <button onclick="executeBulkImport()" class="w-full bg-sky-600 text-white py-2 rounded-xl font-bold text-xs">استيراد القائمة الآن</button>
                     </div>
                 `;
-            } else if (actionKey === 'view_dossier') {
-                titleEl.innerText = "إضبارة الطلبة الكلية";
-                iconEl.className = "fa-solid fa-address-book";
-                let dossierList = appState.students.map(s => `
-                    <div class="p-2 bg-slate-50 rounded-xl mb-1.5 flex justify-between items-center text-xs">
-                        <div>
-                            <h5 class="font-bold text-slate-800">${s.name}</h5>
-                            <span class="text-[9px] text-slate-400">${s.class} (${s.section}) | ${s.phone}</span>
-                        </div>
-                        <span class="text-[9px] bg-slate-200 px-2 py-0.5 rounded-full font-bold">طباعة القيد</span>
-                    </div>
-                `).join('');
-
-                bodyEl.innerHTML = `<div class="max-h-60 overflow-y-auto custom-scroll">${dossierList}</div>`;
             } else if (actionKey === 'add_subject') {
                 titleEl.innerText = "إضافة مادة دراسية";
                 iconEl.className = "fa-solid fa-book-bookmark";
@@ -2740,8 +3067,8 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-600 mb-1">رقم الواتساب / الهاتف:</label>
-                        <input id="edit-std-phone" type="text" value="${s.phone || ''}" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs font-bold outline-none focus:border-slate-900">
+                        <label class="block text-[10px] font-bold text-slate-600 mb-1">رقم الواتساب / الهاتف (اختياري):</label>
+                        <input id="edit-std-phone" type="text" value="${s.phone || ''}" placeholder="يمكن تركه فارغاً" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs font-bold outline-none focus:border-slate-900">
                     </div>
                     <div class="pt-2 flex gap-2">
                         <button onclick="saveUpdatedStudentData(${s.id})" class="flex-1 bg-emerald-600 text-white py-2 rounded-xl font-bold text-xs shadow-md hover:bg-emerald-700">حفظ التعديلات</button>
@@ -2788,16 +3115,18 @@
                 if (!name || !section) { showToast("الرجاء إدخال البيانات المطلوبة", "error"); return; }
                 appState.classes.push({ id: Date.now(), name, section, count: 0 });
                 showToast("تمت إضافة المرحلة والشعبة بنجاح");
-            } else if (currentModalType === 'add_student') {
+            } 
+            // تسجيل الطالب برقم هاتف اختياري
+            else if (currentModalType === 'add_student') {
                 const name = document.getElementById('inp-std-name').value;
-                const phone = document.getElementById('inp-std-phone').value;
+                const phone = document.getElementById('inp-std-phone').value || "";
                 const classVal = document.getElementById('inp-std-class').value;
-                if (!name) { showToast("الرجاء إدخال اسم الطالب", "error"); return; }
+                if (!name.trim()) { showToast("الرجاء إدخال اسم الطالب", "error"); return; }
                 const [className, sectionPart] = classVal.split(" - ");
                 appState.students.push({ 
                     id: Date.now(), 
-                    name, 
-                    phone, 
+                    name: name.trim(), 
+                    phone: phone.trim(), 
                     class: className, 
                     section: sectionPart || "أ", 
                     year: "2025-2026", 
@@ -2851,7 +3180,7 @@
                     appState.students.push({
                         id: Date.now() + Math.random(),
                         name: line.trim(),
-                        phone: "07700000000",
+                        phone: "",
                         class: "المرحلة الأولى",
                         section: "أ",
                         year: "2025-2026",
